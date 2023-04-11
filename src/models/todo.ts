@@ -7,6 +7,9 @@ export default interface Todo {
 
 export interface TodoState {
   todos: Todo[];
-  status: string;
+  getAllTodosStatus: string;
+  updateTodoStatus: string;
+  createTodoStatus: string;
+  deleteTodoStatus: string;
   error: any;
 }
