@@ -18,6 +18,9 @@
   .todoDescription {
     color: theme-color("primary");
   }
+  .todoCheckbox {
+    font-size: 11px;
+  }
 }
 .todoFaded {
   opacity: .5;

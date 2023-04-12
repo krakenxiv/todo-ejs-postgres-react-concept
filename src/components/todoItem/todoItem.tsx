@@ -6,6 +6,7 @@ interface ToolItemProps {
   todo: Todo;
   editHandler: Function;
   deleteHandler: Function;
+  checkHandler: Function;
 }
 
 const TodoItem = (props: ToolItemProps) => {
@@ -15,8 +16,8 @@ const TodoItem = (props: ToolItemProps) => {
       <span className={classes.todoDescription}>
         {props.todo.todo_description}
       </span>
-      <span>
-      <input type="checkbox" checked={props.todo.completed} />
+      <span className={classes.todoCheckbox}>
+        completed: <input type="checkbox"  onChange={() => {props.checkHandler()}} defaultChecked={!!props.todo.completed} />
       </span>
       {/* <span className={classes.todoDescription}>
         {props.todo.date_modified}

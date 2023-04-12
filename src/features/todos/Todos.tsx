@@ -4,7 +4,8 @@ import {
   fetchTodos,
   addNewTodo,
   updateTodo,
-  deleteTodo
+  deleteTodo,
+  // checkedTodo
 } from './todosSlice';
 import TodoItem from '../../components/todoItem/todoItem';
 import Modal from '../../components/modal/modal';
@@ -96,10 +97,20 @@ const Todos = () => {
     }
   };
 
+  const handleCheckTodo = (todo: Todo) => {
+    const updatedCheck = todo.completed === true ? false : true;
+      // @ts-ignore
+      dispatch(updateTodo({id:todo.id, todo_name:todo.todo_name, todo_description:todo.todo_description, completed: updatedCheck}));
+      // dispatch(checkedTodo(todo));
+  };
+
   let content;
 
   if (getAllTodosStatus === 'loading') {
-    content = <h1>Loading...</h1>;
+    content = 
+    <div className={classes.loader}>
+      <div className="spinner-grow text-primary" role="status"></div>
+    </div>
   } else if (getAllTodosStatus === 'succeeded') {
     content = todoList.map((todo: Todo) => {
       if(todo && todo.id) {
@@ -108,7 +119,7 @@ const Todos = () => {
           todo={todo}
           editHandler={() => handleEditTodo(todo)}
           deleteHandler={() => handleRemoveTodo(todo)}
-          // deleteHandler={() => testHandleEditTodo(todo)}
+          checkHandler={() => {handleCheckTodo(todo)}}
           key={todo.id}
           />
           )
@@ -116,7 +127,6 @@ const Todos = () => {
           return null;
         }
     });
-    // content = <h1>content</h1>;
   } else if (getAllTodosStatus === 'failed') {
     content = <div>{todoError}</div>;
   }
@@ -150,10 +160,10 @@ const Todos = () => {
             data-bs-toggle="modal"
             data-bs-target="#addTodoModal"
           >
-            +
+            ADD TODO +
           </button>
         </div>
-        <h1>Todo Manager</h1>
+        <h2 className='text-light'>Todo Manager</h2>
         <div className={`container`}>{content}</div>
       </div>
     </>

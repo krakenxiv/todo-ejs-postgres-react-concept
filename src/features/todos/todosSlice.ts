@@ -156,9 +156,3 @@ const todosSlice = createSlice({
 
 export default todosSlice.reducer;
 export const selectAllTodos = (state: any) => state.todos.todos;
-
-/*
-  updateTodoStatus: string;
-  createTodoStatus: string;
-  deleteTodoStatus: string;
-*/
