@@ -12,9 +12,18 @@
   .todoName {
     font-weight: bold;
   }
+  .todoCompleted {
+    text-decoration: line-through;
+  }
   .todoDescription {
     color: theme-color("primary");
   }
+  .todoCheckbox {
+    font-size: 11px;
+  }
+}
+.todoFaded {
+  opacity: .5;
 }
 .btnEnd {
   margin-left: 10px;

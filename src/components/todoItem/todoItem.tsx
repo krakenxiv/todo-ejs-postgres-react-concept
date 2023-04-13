@@ -6,17 +6,18 @@ interface ToolItemProps {
   todo: Todo;
   editHandler: Function;
   deleteHandler: Function;
+  checkHandler: Function;
 }
 
 const TodoItem = (props: ToolItemProps) => {
   return (
-    <div className={classes.todo} key={props.todo.id}>
-      <span className={classes.todoName}>{props.todo.todo_name}</span>
+    <div className={`${classes.todo}  ${props.todo.completed ? classes.todoFaded : null}`} key={props.todo.id}>
+      <span className={`${classes.todoName} ${props.todo.completed ? classes.todoCompleted : null}`}>{props.todo.todo_name}</span>
       <span className={classes.todoDescription}>
         {props.todo.todo_description}
       </span>
-      <span className={classes.todoDescription}>
-        {props.todo.completed}...
+      <span className={classes.todoCheckbox}>
+        completed: <input type="checkbox"  onChange={() => {props.checkHandler()}} defaultChecked={!!props.todo.completed} />
       </span>
       {/* <span className={classes.todoDescription}>
         {props.todo.date_modified}
