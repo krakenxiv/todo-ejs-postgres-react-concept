@@ -2,9 +2,9 @@ import { createSlice, current, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import TodoDataService from '../../api/todoDataService';
 import Todo, { TodoState } from '../../models/todo';
+import { arraySort } from '../../utilities/utilities';
 
 // TODO fix typescript error
-// TODO resort list when updated
 
 const initialState = {
   todos: [],
@@ -12,6 +12,8 @@ const initialState = {
   updateTodoStatus: 'idle',
   createTodoStatus: 'idle',
   deleteTodoStatus: 'idle',
+  sortBy: 'name',
+  orderByAsc: true,
   error: null,
 } as TodoState;
 
@@ -76,7 +78,6 @@ export const deleteTodo = createAsyncThunk(
     const response = await TodoDataService.deleteTodo(todo);
 
     try {
-      console.log(response.data);
       return response.data;
     } catch (err) {
       //@ts-ignore
@@ -92,7 +93,16 @@ export const deleteTodo = createAsyncThunk(
 const todosSlice = createSlice({
   name: 'todos',
   initialState,
-  reducers: {},
+  reducers: {
+    updateSortOrder(state, action: PayloadAction<string>) {
+      state.sortBy = action.payload;
+      state.todos = arraySort(state.todos, state.sortBy, state.orderByAsc);
+    },
+    updateOrderByAsc(state, action: PayloadAction<boolean>) {
+      state.orderByAsc = action.payload;
+      state.todos = arraySort(state.todos, state.sortBy, state.orderByAsc);
+    },
+  },
   extraReducers: (builder) => {
     // fetch todos
     builder.addCase(fetchTodos.pending, (state, action) => {
@@ -100,7 +110,7 @@ const todosSlice = createSlice({
     });
     builder.addCase(fetchTodos.fulfilled, (state, action) => {
       state.getAllTodosStatus = 'succeeded';
-      state.todos = action.payload;
+      state.todos = arraySort(action.payload, state.sortBy, state.orderByAsc);
     });
     builder.addCase(fetchTodos.rejected, (state, action) => {
       state.getAllTodosStatus = 'failed';
@@ -113,6 +123,7 @@ const todosSlice = createSlice({
     builder.addCase(addNewTodo.fulfilled, (state, action) => {
       state.createTodoStatus = 'succeeded';
       state.todos.push(action.payload);
+      state.todos = arraySort(state.todos, state.sortBy, state.orderByAsc);
     });
     builder.addCase(addNewTodo.rejected, (state, action) => {
       state.createTodoStatus = 'failed';
@@ -142,7 +153,6 @@ const todosSlice = createSlice({
     });
     builder.addCase(deleteTodo.fulfilled, (state, action) => {
       state.deleteTodoStatus = 'succeeded';
-      console.log(action.payload);
       state.todos = state.todos.filter(
         (todo) => todo.id !== action.payload.toString()
       );
@@ -155,4 +165,5 @@ const todosSlice = createSlice({
 });
 
 export default todosSlice.reducer;
+export const { updateSortOrder, updateOrderByAsc } = todosSlice.actions;
 export const selectAllTodos = (state: any) => state.todos.todos;

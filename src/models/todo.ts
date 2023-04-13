@@ -11,5 +11,7 @@ export interface TodoState {
   updateTodoStatus: string;
   createTodoStatus: string;
   deleteTodoStatus: string;
+  sortBy: string;
+  orderByAsc: boolean;
   error: any;
 }

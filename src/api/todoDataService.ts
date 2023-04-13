@@ -1,4 +1,4 @@
-import Todo, { TodoState } from '../models/todo';
+import Todo from '../models/todo';
 import axios from 'axios';
 
 const getTodos = async () => {
@@ -11,7 +11,6 @@ const createTodo = async (todo: Todo) => {
 };
 
 const updateTodo = async (todo: Todo) => {
-  console.log(todo);
   return await axios.put('http://localhost:3010/todos', todo);
 };
 
