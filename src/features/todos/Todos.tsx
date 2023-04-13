@@ -15,6 +15,7 @@ import Todo from '../../models/todo';
 import { AppDispatch } from '../../store/store';
 // TODO install bootstrap npm OR create custom global css vars
 // TODO write basic tests
+// TODO stack selects when page is mobile
 
 
 const Todos = () => {
@@ -57,19 +58,46 @@ const Todos = () => {
   };
 
   const handleAddNewTodo = (name: string, description: string) => {
-    if (name !== '' && description !== '') {
-
+    let submitError = '';
+    if (name === '') {
+      submitError += `Name cannot be blank\n`;
+    }
+    if (description === '') {
+      submitError += `Description cannot be blank\n`;
+    }
+    if ( name.length > 256) {
+      submitError += `Name cannot be more than 256 characters\n`;
+    }
+    if (description.length > 256) {
+      submitError += `Description cannot be more than 256 characters\n`;
+    }
+    if (submitError === '') {
       let newTodo = {
         todo_name: name,
         todo_description: description,
         completed: false,
       };
       dispatch(addNewTodo(newTodo));
+    } else {
+      alert(submitError);
     }
   };
 
   const handleUpdateTodo = (name: string, description: string) => {
-    if (name !== '' && description !== '') {
+    let submitError = '';
+    if (name === '') {
+      submitError += `Name cannot be blank\n`;
+    }
+    if (description === '') {
+      submitError += `Description cannot be blank\n`;
+    }
+    if ( name.length > 256) {
+      submitError += `Name cannot be more than 256 characters\n`;
+    }
+    if (description.length > 256) {
+      submitError += `Description cannot be more than 256 characters\n`;
+    }
+    if (submitError === '') {
       let updatedTodo = {
         id: editId,
         todo_name: name,
@@ -77,6 +105,8 @@ const Todos = () => {
         completed: editCompleted,
       };
       dispatch(updateTodo(updatedTodo));
+    }else {
+      alert(submitError);
     }
   };
 
@@ -89,11 +119,11 @@ const Todos = () => {
     dispatch(updateSortOrder(e.target.value));
   };
 
-  const orderByAscHandler = () => {
-    if(orderBy === true) {
-      dispatch(updateOrderByAsc(false));
-    }else {
+  const orderByAscHandler = (e: any) => {
+    if(e.target.value === 'asc') {
       dispatch(updateOrderByAsc(true));
+    }else {
+      dispatch(updateOrderByAsc(false));
     }
   };
 
@@ -146,7 +176,7 @@ const Todos = () => {
       />
 
       <div>
-        <div className={`d-flex justify-content-between bg-info ${classes.headerBar}`}>
+        <div className={`d-flex justify-content-between ${classes.headerBar}`}>
           <h2 className='text-light'>Todo Manager</h2>
           <button
             className={`btn btn-primary`}
@@ -156,19 +186,22 @@ const Todos = () => {
             ADD TODO +
           </button>
         </div>
-        <div className={`d-flex justify-content-between`}>
-          <div>
-            <label className="form-check-label" htmlFor="sort-by-select">Sort By</label>
-            <select className='form-select' id="sort-by-select"onChange={sortByHandler}>
-              <option value="name" selected>Name</option>
+        <div className={`${classes.sortRow}`}>
+          <div className={`${classes.sortBy}`}>
+            <label className={`form-check-label ${classes.selectLabel}`} htmlFor="sort-by-select">Sort By</label>
+            <select className={`form-select ${classes.sortSelect}`} id="sort-by-select" onChange={sortByHandler}>
+              <option value="name" defaultValue={'name'}>Name</option>
               <option value="description">Description</option>
               <option value="completed">Completed</option>
               <option value="id">ID</option>
             </select>
           </div>
-          <div className="form-check form-switch">
-            <input className="form-check-input" type="checkbox" id="order-by-checkbox" onChange={orderByAscHandler} defaultChecked={orderBy} />
-            <label className="form-check-label" htmlFor="order-by-checkbox">ASC</label>
+          <div className={`${classes.orderBy}`}>
+            <label className={`form-check-label ${classes.selectLabel}`} htmlFor="order-by-select">Order By</label>
+            <select className={`form-select ${classes.sortSelect}`} id="order-by-select" onChange={orderByAscHandler}>
+              <option value="asc" defaultValue={'asc'}>ASC</option>
+              <option value="desc">DESC</option>
+            </select>
           </div>
         </div>
         <div className={`container`}>{content}</div>
