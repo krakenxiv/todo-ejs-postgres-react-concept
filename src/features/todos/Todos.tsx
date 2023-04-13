@@ -12,18 +12,17 @@ import TodoItem from '../../components/todoItem/todoItem';
 import Modal from '../../components/modal/modal';
 import classes from './todos.module.scss';
 import Todo from '../../models/todo';
-
+import { AppDispatch } from '../../store/store';
 // TODO install bootstrap npm OR create custom global css vars
 // TODO write basic tests
+// TODO stack selects when page is mobile
 
 
 const Todos = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [editId, setEditId] = useState('');
+  const [editId, setEditId] = useState<string | null | undefined>('');
   const [editCompleted, setEditCompleted] = useState(Boolean);
-  // const [sortOrder, setSortOrder] = useState('name');
-  // const [sortByAsc, setSortByAsc] = useState(Boolean);
 
   const todoList = useSelector((state: any) => {
     if(state && state.todos && state.todos.todos) {
@@ -39,24 +38,17 @@ const Todos = () => {
   const todoError = useSelector((state: any) => {
     return state.todos.error;
   });
-
-  const testOrderBy = useSelector((state: any) => {
+  const orderBy = useSelector((state: any) => {
     return state.todos.orderByAsc;
   });
 
-  // const currSortOrder = useSelector((state: any) => {
-  //   return state.todos.sortOrder;
-  // });
-
   useEffect(() => {
     if (getAllTodosStatus === 'idle') {
-      // @ts-ignore
       dispatch(fetchTodos());
     }
   }, [getAllTodosStatus, dispatch]);
 
   const handleRemoveTodo = (todo: Todo) => {
-    // @ts-ignore
     dispatch(deleteTodo(todo));
   };
 
@@ -66,36 +58,60 @@ const Todos = () => {
   };
 
   const handleAddNewTodo = (name: string, description: string) => {
-    if (name !== '' && description !== '') {
-
+    let submitError = '';
+    if (name === '') {
+      submitError += `Name cannot be blank\n`;
+    }
+    if (description === '') {
+      submitError += `Description cannot be blank\n`;
+    }
+    if ( name.length > 256) {
+      submitError += `Name cannot be more than 256 characters\n`;
+    }
+    if (description.length > 256) {
+      submitError += `Description cannot be more than 256 characters\n`;
+    }
+    if (submitError === '') {
       let newTodo = {
         todo_name: name,
         todo_description: description,
         completed: false,
-        date_modified: 4567,
       };
-      // createTodo(mockTodo);
-      //@ts-ignore
       dispatch(addNewTodo(newTodo));
+    } else {
+      alert(submitError);
     }
   };
 
   const handleUpdateTodo = (name: string, description: string) => {
-    if (name !== '' && description !== '') {
+    let submitError = '';
+    if (name === '') {
+      submitError += `Name cannot be blank\n`;
+    }
+    if (description === '') {
+      submitError += `Description cannot be blank\n`;
+    }
+    if ( name.length > 256) {
+      submitError += `Name cannot be more than 256 characters\n`;
+    }
+    if (description.length > 256) {
+      submitError += `Description cannot be more than 256 characters\n`;
+    }
+    if (submitError === '') {
       let updatedTodo = {
         id: editId,
         todo_name: name,
         todo_description:description,
         completed: editCompleted,
       };
-      //@ts-ignore
       dispatch(updateTodo(updatedTodo));
+    }else {
+      alert(submitError);
     }
   };
 
   const handleCheckTodo = (todo: Todo) => {
     const updatedCheck = todo.completed === true ? false : true;
-      // @ts-ignore
       dispatch(updateTodo({id:todo.id, todo_name:todo.todo_name, todo_description:todo.todo_description, completed: updatedCheck}));
   };
 
@@ -103,11 +119,11 @@ const Todos = () => {
     dispatch(updateSortOrder(e.target.value));
   };
 
-  const orderByAscHandler = () => {
-    if(testOrderBy === true) {
-      dispatch(updateOrderByAsc(false));
-    }else {
+  const orderByAscHandler = (e: any) => {
+    if(e.target.value === 'asc') {
       dispatch(updateOrderByAsc(true));
+    }else {
+      dispatch(updateOrderByAsc(false));
     }
   };
 
@@ -160,7 +176,8 @@ const Todos = () => {
       />
 
       <div>
-        <div className={`d-flex justify-content-end ${classes.addBtn}`}>
+        <div className={`d-flex justify-content-between ${classes.headerBar}`}>
+          <h2 className='text-light'>Todo Manager</h2>
           <button
             className={`btn btn-primary`}
             data-bs-toggle="modal"
@@ -169,20 +186,22 @@ const Todos = () => {
             ADD TODO +
           </button>
         </div>
-        <h2 className='text-light'>Todo Manager</h2>
-        <div>
-          <h3>Sort Order</h3>
-          <label>Name</label>
-          <input type="radio" id="delivery" value="name" name="sortByGroup" required onChange={sortByHandler} defaultChecked={true}  />
-          <label>Description</label>
-          <input type="radio" id="pick" value="description" name="sortByGroup" onChange={sortByHandler}  />
-          <label>Completed</label>
-          <input type="radio" value="completed" name="sortByGroup" onChange={sortByHandler} />
-          <label>ID</label>
-          <input type="radio" value="id" name="sortByGroup" onChange={sortByHandler} />
-          <div>
-            Sort by ASC
-            <input type="checkbox"  onChange={orderByAscHandler} defaultChecked={testOrderBy} />
+        <div className={`${classes.sortRow}`}>
+          <div className={`${classes.sortBy}`}>
+            <label className={`form-check-label ${classes.selectLabel}`} htmlFor="sort-by-select">Sort By</label>
+            <select className={`form-select ${classes.sortSelect}`} id="sort-by-select" onChange={sortByHandler}>
+              <option value="name" defaultValue={'name'}>Name</option>
+              <option value="description">Description</option>
+              <option value="completed">Completed</option>
+              <option value="id">ID</option>
+            </select>
+          </div>
+          <div className={`${classes.orderBy}`}>
+            <label className={`form-check-label ${classes.selectLabel}`} htmlFor="order-by-select">Order By</label>
+            <select className={`form-select ${classes.sortSelect}`} id="order-by-select" onChange={orderByAscHandler}>
+              <option value="asc" defaultValue={'asc'}>ASC</option>
+              <option value="desc">DESC</option>
+            </select>
           </div>
         </div>
         <div className={`container`}>{content}</div>

@@ -2,32 +2,46 @@
   background-color: var(--bs-gray-500);
   border: 1px solid var(--bs-white);
   margin: 10px auto;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 5px;
+  border-radius: 5px;
   box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.25);
 
   span {
     display: block;
   }
-  .todoName {
-    font-weight: bold;
+  .todoText {
+    flex-grow: 1 1 0;
+    flex-basis: 100%;
+    margin-right: 10px;
+    .todoName {
+      font-weight: bold;
+    }
+
+    .todoDescription {
+      font-size: 12px;
+      color: theme-color('primary');
+    }
   }
   .todoCompleted {
     text-decoration: line-through;
   }
-  .todoDescription {
-    color: theme-color("primary");
-  }
-  .todoCheckbox {
+  .todoCheckboxLabel {
     font-size: 11px;
+  }
+  .todoChecked {
+    align-items: center;
+    display: flex;
+    justify-content: end;
+    margin-top: 10px;
+  }
+  .todoCheckboxInput {
+    margin-top: 0;
+    margin-right: 6px;
+  }
+  .btnEnd {
+    margin-left: 10px;
   }
 }
 .todoFaded {
-  opacity: .5;
-}
-.btnEnd {
-  margin-left: 10px;
-}
-.addBtn {
-  margin: 10px;
+  opacity: 0.5;
 }
