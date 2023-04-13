@@ -1,5 +1,5 @@
 export default interface Todo {
-  id: string;
+  id?: string | null | undefined;
   todo_name: string;
   todo_description: string;
   completed: boolean;

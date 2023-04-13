@@ -12,18 +12,16 @@ import TodoItem from '../../components/todoItem/todoItem';
 import Modal from '../../components/modal/modal';
 import classes from './todos.module.scss';
 import Todo from '../../models/todo';
-
+import { AppDispatch } from '../../store/store';
 // TODO install bootstrap npm OR create custom global css vars
 // TODO write basic tests
 
 
 const Todos = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [editId, setEditId] = useState('');
+  const [editId, setEditId] = useState<string | null | undefined>('');
   const [editCompleted, setEditCompleted] = useState(Boolean);
-  // const [sortOrder, setSortOrder] = useState('name');
-  // const [sortByAsc, setSortByAsc] = useState(Boolean);
 
   const todoList = useSelector((state: any) => {
     if(state && state.todos && state.todos.todos) {
@@ -39,24 +37,17 @@ const Todos = () => {
   const todoError = useSelector((state: any) => {
     return state.todos.error;
   });
-
-  const testOrderBy = useSelector((state: any) => {
+  const orderBy = useSelector((state: any) => {
     return state.todos.orderByAsc;
   });
 
-  // const currSortOrder = useSelector((state: any) => {
-  //   return state.todos.sortOrder;
-  // });
-
   useEffect(() => {
     if (getAllTodosStatus === 'idle') {
-      // @ts-ignore
       dispatch(fetchTodos());
     }
   }, [getAllTodosStatus, dispatch]);
 
   const handleRemoveTodo = (todo: Todo) => {
-    // @ts-ignore
     dispatch(deleteTodo(todo));
   };
 
@@ -72,10 +63,7 @@ const Todos = () => {
         todo_name: name,
         todo_description: description,
         completed: false,
-        date_modified: 4567,
       };
-      // createTodo(mockTodo);
-      //@ts-ignore
       dispatch(addNewTodo(newTodo));
     }
   };
@@ -88,14 +76,12 @@ const Todos = () => {
         todo_description:description,
         completed: editCompleted,
       };
-      //@ts-ignore
       dispatch(updateTodo(updatedTodo));
     }
   };
 
   const handleCheckTodo = (todo: Todo) => {
     const updatedCheck = todo.completed === true ? false : true;
-      // @ts-ignore
       dispatch(updateTodo({id:todo.id, todo_name:todo.todo_name, todo_description:todo.todo_description, completed: updatedCheck}));
   };
 
@@ -104,7 +90,7 @@ const Todos = () => {
   };
 
   const orderByAscHandler = () => {
-    if(testOrderBy === true) {
+    if(orderBy === true) {
       dispatch(updateOrderByAsc(false));
     }else {
       dispatch(updateOrderByAsc(true));
@@ -160,7 +146,8 @@ const Todos = () => {
       />
 
       <div>
-        <div className={`d-flex justify-content-end ${classes.addBtn}`}>
+        <div className={`d-flex justify-content-between bg-info ${classes.headerBar}`}>
+          <h2 className='text-light'>Todo Manager</h2>
           <button
             className={`btn btn-primary`}
             data-bs-toggle="modal"
@@ -169,20 +156,19 @@ const Todos = () => {
             ADD TODO +
           </button>
         </div>
-        <h2 className='text-light'>Todo Manager</h2>
-        <div>
-          <h3>Sort Order</h3>
-          <label>Name</label>
-          <input type="radio" id="delivery" value="name" name="sortByGroup" required onChange={sortByHandler} defaultChecked={true}  />
-          <label>Description</label>
-          <input type="radio" id="pick" value="description" name="sortByGroup" onChange={sortByHandler}  />
-          <label>Completed</label>
-          <input type="radio" value="completed" name="sortByGroup" onChange={sortByHandler} />
-          <label>ID</label>
-          <input type="radio" value="id" name="sortByGroup" onChange={sortByHandler} />
+        <div className={`d-flex justify-content-between`}>
           <div>
-            Sort by ASC
-            <input type="checkbox"  onChange={orderByAscHandler} defaultChecked={testOrderBy} />
+            <label className="form-check-label" htmlFor="sort-by-select">Sort By</label>
+            <select className='form-select' id="sort-by-select"onChange={sortByHandler}>
+              <option value="name" selected>Name</option>
+              <option value="description">Description</option>
+              <option value="completed">Completed</option>
+              <option value="id">ID</option>
+            </select>
+          </div>
+          <div className="form-check form-switch">
+            <input className="form-check-input" type="checkbox" id="order-by-checkbox" onChange={orderByAscHandler} defaultChecked={orderBy} />
+            <label className="form-check-label" htmlFor="order-by-checkbox">ASC</label>
           </div>
         </div>
         <div className={`container`}>{content}</div>
