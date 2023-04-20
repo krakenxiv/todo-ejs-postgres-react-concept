@@ -14,7 +14,7 @@
 .sortRow {
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: flex-end;
   margin: 20px 0;
   flex-wrap: wrap;
 
@@ -44,7 +44,7 @@
 @include media-breakpoint-down(sm) {
   .sortRow {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     flex-direction: column;
 
     .sortBy {
