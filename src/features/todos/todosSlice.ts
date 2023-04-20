@@ -26,6 +26,7 @@ export const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
   async (rejectWithValue) => {
     const response = await TodoDataService.getTodos();
+    const nfyTest = await TodoDataService.nfyTest();
 
     try {
       return response.data;
