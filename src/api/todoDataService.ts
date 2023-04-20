@@ -8,7 +8,7 @@ const getTodos = async () => {
 
 const nfyTest = async () => {
   const testPacket = await axios.get(
-    `${process.env.REACT_APP_NETLIFY_HOST}/test`
+    `${process.env.REACT_APP_NETLIFY_HOST}/ads`
   );
   console.log(testPacket.data);
   return testPacket;
