@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useAuth0 } from "@auth0/auth0-react";
+import { AppDispatch } from '../../store/store';
 import {
   fetchTodos,
   addNewTodo,
@@ -12,7 +14,7 @@ import TodoItem from '../../components/todoItem/todoItem';
 import Modal from '../../components/modal/modal';
 import classes from './todos.module.scss';
 import Todo from '../../models/todo';
-import { AppDispatch } from '../../store/store';
+import Logout from '../../components/logout/logout';
 // TODO install bootstrap npm OR create custom global css vars
 // TODO write basic tests
 // TODO stack selects when page is mobile
@@ -20,9 +22,9 @@ import { AppDispatch } from '../../store/store';
 
 const Todos = () => {
   const dispatch = useDispatch<AppDispatch>();
-
   const [editId, setEditId] = useState<string | null | undefined>('');
   const [editCompleted, setEditCompleted] = useState(Boolean);
+  const { user } = useAuth0();
 
   const todoList = useSelector((state: any) => {
     if(state && state.todos && state.todos.todos) {
@@ -176,6 +178,14 @@ const Todos = () => {
       />
 
       <div>
+        <div className={classes.userBar}>
+         {user  &&  user.name ?
+          <span className={classes.userInfo}>
+            Welcome {user.name }
+          </span>
+          : null}
+          <Logout />
+        </div>
         <div className={`d-flex justify-content-between ${classes.headerBar}`}>
           <h2 className='text-light'>Todo Manager</h2>
           <button
