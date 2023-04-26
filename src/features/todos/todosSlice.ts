@@ -25,19 +25,19 @@ const initialState = {
 export const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
   async (rejectWithValue) => {
-    // const response = await TodoDataService.getTodos();
+    const response = await TodoDataService.getTodos();
     const nfyTest = await TodoDataService.nfyTest();
 
-    //   try {
-    //     return response.data;
-    //   } catch (err) {
-    //     //@ts-ignore
-    //     if (!err.response) {
-    //       throw err;
-    //     }
-    //     //@ts-ignore
-    //     return rejectWithValue(err.response.data);
-    //   }
+    try {
+      return response.data;
+    } catch (err) {
+      //@ts-ignore
+      if (!err.response) {
+        throw err;
+      }
+      //@ts-ignore
+      return rejectWithValue(err.response.data);
+    }
   }
 );
 
@@ -115,8 +115,8 @@ const todosSlice = createSlice({
     });
     builder.addCase(fetchTodos.fulfilled, (state, action) => {
       state.getAllTodosStatus = 'succeeded';
-      // state.todos = arraySort(action.payload, state.sortBy, state.orderByAsc);
-      state.todos = arraySort([], state.sortBy, state.orderByAsc);
+      state.todos = arraySort(action.payload, state.sortBy, state.orderByAsc);
+      // state.todos = arraySort([], state.sortBy, state.orderByAsc);
     });
     builder.addCase(fetchTodos.rejected, (state, action) => {
       state.getAllTodosStatus = 'failed';
