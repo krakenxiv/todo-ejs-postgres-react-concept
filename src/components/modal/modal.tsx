@@ -1,21 +1,25 @@
-import React from "react";
-import { useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { timestampToDateConvert } from "../../utilities/utilities";
-import Todo from "../../models/todo";
-import classes from "./modal.module.scss";
+import React from 'react';
+import { useState, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { timestampToDateConvert } from '../../utilities/utilities';
+import Todo from '../../models/todo';
+import classes from './modal.module.scss';
 
 interface ModalProps {
   actionName: string;
   id: string;
+  previousName?: string;
+  previousDescription?: string;
   updateModal: Function;
 }
 
 const Modal = (props: ModalProps) => {
   const nameInputRef = useRef(null);
   const descriptionInputRef = useRef(null);
-  const [nameValue, setNameValue] = useState("");
-  const [descriptionValue, setDescriptionValue] = useState("");
+  const [nameValue, setNameValue] = useState('');
+  const [descriptionValue, setDescriptionValue] = useState('');
+  const [nameFocus, setNameFocus] = useState(false);
+  const [descriptionFocus, setDescriptionFocus] = useState(false);
 
   const handleNameChange = (event: any) => {
     setNameValue(event.target.value);
@@ -26,8 +30,32 @@ const Modal = (props: ModalProps) => {
   };
 
   const resetValues = () => {
-    setNameValue("");
-    setDescriptionValue("");
+    setNameValue('');
+    setDescriptionValue('');
+    setNameFocus(false);
+    setDescriptionFocus(false);
+  };
+
+  const checkPreviousName = () => {
+    if (nameFocus && nameValue === '') {
+      return nameValue;
+    } else if (props.previousName !== '' && nameValue === '') {
+      return props.previousName;
+    } else {
+      return nameValue;
+    }
+    return '';
+  };
+
+  const checkPreviousDescription = () => {
+    if (descriptionFocus && descriptionValue === '') {
+      return descriptionValue;
+    } else if (props.previousDescription !== '' && descriptionValue === '') {
+      return props.previousDescription;
+    } else {
+      return descriptionValue;
+    }
+    return '';
   };
 
   return (
@@ -35,14 +63,14 @@ const Modal = (props: ModalProps) => {
       <div
         className="modal fade"
         id={props.id}
-        aria-labelledby={props.id + "_label"}
+        aria-labelledby={props.id + '_label'}
         aria-hidden="true"
       >
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="editTodoModalLabel">
-                {props.actionName} Todo{" "}
+                {props.actionName} Todo{' '}
               </h5>
               <button
                 type="button"
@@ -61,8 +89,12 @@ const Modal = (props: ModalProps) => {
                   className="form-control"
                   id="Name"
                   ref={nameInputRef}
+                  onFocus={() => {
+                    setNameFocus(true);
+                    setDescriptionFocus(false);
+                  }}
                   onChange={handleNameChange}
-                  value={nameValue}
+                  value={checkPreviousName()}
                 />
               </div>
               <div className={`input-group mb-3`}>
@@ -73,8 +105,12 @@ const Modal = (props: ModalProps) => {
                   className="form-control"
                   id="Description"
                   ref={descriptionInputRef}
+                  onFocus={() => {
+                    setDescriptionFocus(true);
+                    setNameFocus(false);
+                  }}
                   onChange={handleDescriptionChange}
-                  value={descriptionValue}
+                  value={checkPreviousDescription()}
                 />
               </div>
             </div>

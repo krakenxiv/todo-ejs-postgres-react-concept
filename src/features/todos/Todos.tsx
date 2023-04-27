@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth0 } from '@auth0/auth0-react';
 import { AppDispatch } from '../../store/store';
 import {
   fetchTodos,
@@ -8,7 +8,7 @@ import {
   updateTodo,
   deleteTodo,
   updateSortOrder,
-  updateOrderByAsc
+  updateOrderByAsc,
 } from './todosSlice';
 import TodoItem from '../../components/todoItem/todoItem';
 import Modal from '../../components/modal/modal';
@@ -19,18 +19,19 @@ import Logout from '../../components/logout/logout';
 // TODO write basic tests
 // TODO stack selects when page is mobile
 
-
 const Todos = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [editId, setEditId] = useState<string | null | undefined>('');
+  const [previousName, setPreviousName] = useState<string>('');
+  const [previousDescription, setPreviousDescription] = useState<string>('');
+
   const [editCompleted, setEditCompleted] = useState(Boolean);
   const { user } = useAuth0();
 
   const todoList = useSelector((state: any) => {
-    if(state && state.todos && state.todos.todos) {
+    if (state && state.todos && state.todos.todos) {
       return state.todos.todos;
-    }
-    else {
+    } else {
       return null;
     }
   });
@@ -55,6 +56,8 @@ const Todos = () => {
   };
 
   const handleEditTodo = (todo: Todo) => {
+    setPreviousName(todo.todo_name);
+    setPreviousDescription(todo.todo_description);
     setEditCompleted(todo.completed);
     setEditId(todo.id);
   };
@@ -67,7 +70,7 @@ const Todos = () => {
     if (description === '') {
       submitError += `Description cannot be blank\n`;
     }
-    if ( name.length > 256) {
+    if (name.length > 256) {
       submitError += `Name cannot be more than 256 characters\n`;
     }
     if (description.length > 256) {
@@ -93,7 +96,7 @@ const Todos = () => {
     if (description === '') {
       submitError += `Description cannot be blank\n`;
     }
-    if ( name.length > 256) {
+    if (name.length > 256) {
       submitError += `Name cannot be more than 256 characters\n`;
     }
     if (description.length > 256) {
@@ -103,18 +106,25 @@ const Todos = () => {
       let updatedTodo = {
         id: editId,
         todo_name: name,
-        todo_description:description,
+        todo_description: description,
         completed: editCompleted,
       };
       dispatch(updateTodo(updatedTodo));
-    }else {
+    } else {
       alert(submitError);
     }
   };
 
   const handleCheckTodo = (todo: Todo) => {
     const updatedCheck = todo.completed === true ? false : true;
-      dispatch(updateTodo({id:todo.id, todo_name:todo.todo_name, todo_description:todo.todo_description, completed: updatedCheck}));
+    dispatch(
+      updateTodo({
+        id: todo.id,
+        todo_name: todo.todo_name,
+        todo_description: todo.todo_description,
+        completed: updatedCheck,
+      })
+    );
   };
 
   const sortByHandler = (e: any) => {
@@ -122,9 +132,9 @@ const Todos = () => {
   };
 
   const orderByAscHandler = (e: any) => {
-    if(e.target.value === 'asc') {
+    if (e.target.value === 'asc') {
       dispatch(updateOrderByAsc(true));
-    }else {
+    } else {
       dispatch(updateOrderByAsc(false));
     }
   };
@@ -132,25 +142,28 @@ const Todos = () => {
   let content;
 
   if (getAllTodosStatus === 'loading') {
-    content = 
-    <div className={classes.loader}>
-      <div className="spinner-grow text-primary" role="status"></div>
-    </div>
+    content = (
+      <div className={classes.loader}>
+        <div className="spinner-grow text-primary" role="status"></div>
+      </div>
+    );
   } else if (getAllTodosStatus === 'succeeded') {
     content = todoList.map((todo: Todo) => {
-      if(todo && todo.id) {
+      if (todo && todo.id) {
         return (
           <TodoItem
-          todo={todo}
-          editHandler={() => handleEditTodo(todo)}
-          deleteHandler={() => handleRemoveTodo(todo)}
-          checkHandler={() => {handleCheckTodo(todo)}}
-          key={todo.id}
+            todo={todo}
+            editHandler={() => handleEditTodo(todo)}
+            deleteHandler={() => handleRemoveTodo(todo)}
+            checkHandler={() => {
+              handleCheckTodo(todo);
+            }}
+            key={todo.id}
           />
-          )
-        }else {
-          return null;
-        }
+        );
+      } else {
+        return null;
+      }
     });
   } else if (getAllTodosStatus === 'failed') {
     content = <div>{todoError}</div>;
@@ -161,10 +174,9 @@ const Todos = () => {
       <Modal
         actionName="Edit"
         id="editTodoModal"
-        updateModal={(
-          name: string,
-          description: string,
-        ) => {
+        previousName={previousName}
+        previousDescription={previousDescription}
+        updateModal={(name: string, description: string) => {
           handleUpdateTodo(name, description);
         }}
       />
@@ -172,6 +184,8 @@ const Todos = () => {
       <Modal
         actionName="Todo"
         id="addTodoModal"
+        previousName=""
+        previousDescription=""
         updateModal={(name: string, description: string) => {
           handleAddNewTodo(name, description);
         }}
@@ -179,15 +193,13 @@ const Todos = () => {
 
       <div>
         <div className={classes.userBar}>
-         {user  &&  user.name ?
-          <span className={classes.userInfo}>
-            Welcome {user.name }
-          </span>
-          : null}
+          {user && user.name ? (
+            <span className={classes.userInfo}>Welcome {user.name}</span>
+          ) : null}
           <Logout />
         </div>
         <div className={`d-flex justify-content-between ${classes.headerBar}`}>
-          <h2 className='text-light'>Todo Manager</h2>
+          <h2 className="text-light">Todo Manager</h2>
           <button
             className={`btn btn-primary`}
             data-bs-toggle="modal"
@@ -198,18 +210,40 @@ const Todos = () => {
         </div>
         <div className={`${classes.sortRow}`}>
           <div className={`${classes.sortBy}`}>
-            <label className={`form-check-label ${classes.selectLabel}`} htmlFor="sort-by-select">Sort By</label>
-            <select className={`form-select ${classes.sortSelect}`} id="sort-by-select" onChange={sortByHandler}>
-              <option value="name" defaultValue={'name'}>Name</option>
+            <label
+              className={`form-check-label ${classes.selectLabel}`}
+              htmlFor="sort-by-select"
+            >
+              Sort By
+            </label>
+            <select
+              className={`form-select ${classes.sortSelect}`}
+              id="sort-by-select"
+              onChange={sortByHandler}
+            >
+              <option value="name" defaultValue={'name'}>
+                Name
+              </option>
               <option value="description">Description</option>
               <option value="completed">Completed</option>
               <option value="id">ID</option>
             </select>
           </div>
           <div className={`${classes.orderBy}`}>
-            <label className={`form-check-label ${classes.selectLabel}`} htmlFor="order-by-select">Order By</label>
-            <select className={`form-select ${classes.sortSelect}`} id="order-by-select" onChange={orderByAscHandler}>
-              <option value="asc" defaultValue={'asc'}>ASC</option>
+            <label
+              className={`form-check-label ${classes.selectLabel}`}
+              htmlFor="order-by-select"
+            >
+              Order By
+            </label>
+            <select
+              className={`form-select ${classes.sortSelect}`}
+              id="order-by-select"
+              onChange={orderByAscHandler}
+            >
+              <option value="asc" defaultValue={'asc'}>
+                ASC
+              </option>
               <option value="desc">DESC</option>
             </select>
           </div>
