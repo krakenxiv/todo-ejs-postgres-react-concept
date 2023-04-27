@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// import {  current } from '@reduxjs/toolkit'; //sometimes current is needed to see current state
 import type { PayloadAction } from '@reduxjs/toolkit';
 import TodoDataService from '../../api/todoDataService';
 import Todo, { TodoState } from '../../models/todo';
@@ -18,15 +17,10 @@ const initialState = {
   error: null,
 } as TodoState;
 
-// type KnownError = {
-//   errorMessage: string;
-// };
-
 export const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
   async (rejectWithValue) => {
     const response = await TodoDataService.getTodos();
-    const nfyTest = await TodoDataService.nfyTest();
 
     try {
       return response.data;
