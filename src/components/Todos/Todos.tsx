@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useAuth0 } from '@auth0/auth0-react';
 import { AppDispatch } from '../../store/store';
 import {
   fetchTodos,
@@ -9,24 +8,25 @@ import {
   deleteTodo,
   updateSortOrder,
   updateOrderByAsc,
-} from './todosSlice';
-import TodoItem from '../../components/todoItem/todoItem';
-import Modal from '../../components/modal/modal';
-import classes from './todos.module.scss';
+} from '../../slices/todos/todosSlice';
+import TodoItem from '../todoItem/todoItem';
+import Modal from '../modal/modal';
 import Todo from '../../models/todo';
-import Logout from '../../components/logout/logout';
+import Header from '../header/header';
+import classes from './todos.module.scss';
 // TODO install bootstrap npm OR create custom global css vars
 // TODO write basic tests
 // TODO stack selects when page is mobile
+interface TodoProps {
+  toastHandler: Function;
+}
 
-const Todos = () => {
+const Todos = (props: TodoProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const [editId, setEditId] = useState<string | null | undefined>('');
   const [previousName, setPreviousName] = useState<string>('');
   const [previousDescription, setPreviousDescription] = useState<string>('');
-
   const [editCompleted, setEditCompleted] = useState(Boolean);
-  const { user } = useAuth0();
 
   const todoList = useSelector((state: any) => {
     if (state && state.todos && state.todos.todos) {
@@ -63,20 +63,7 @@ const Todos = () => {
   };
 
   const handleAddNewTodo = (name: string, description: string) => {
-    let submitError = '';
-    if (name === '') {
-      submitError += `Name cannot be blank\n`;
-    }
-    if (description === '') {
-      submitError += `Description cannot be blank\n`;
-    }
-    if (name.length > 256) {
-      submitError += `Name cannot be more than 256 characters\n`;
-    }
-    if (description.length > 256) {
-      submitError += `Description cannot be more than 256 characters\n`;
-    }
-    if (submitError === '') {
+    if (submissionContainsErrors(name, description) === false) {
       let newTodo = {
         todo_name: name,
         todo_description: description,
@@ -84,25 +71,12 @@ const Todos = () => {
       };
       dispatch(addNewTodo(newTodo));
     } else {
-      alert(submitError);
+      return;
     }
   };
 
   const handleUpdateTodo = (name: string, description: string) => {
-    let submitError = '';
-    if (name === '') {
-      submitError += `Name cannot be blank\n`;
-    }
-    if (description === '') {
-      submitError += `Description cannot be blank\n`;
-    }
-    if (name.length > 256) {
-      submitError += `Name cannot be more than 256 characters\n`;
-    }
-    if (description.length > 256) {
-      submitError += `Description cannot be more than 256 characters\n`;
-    }
-    if (submitError === '') {
+    if (submissionContainsErrors(name, description) === false) {
       let updatedTodo = {
         id: editId,
         todo_name: name,
@@ -111,7 +85,30 @@ const Todos = () => {
       };
       dispatch(updateTodo(updatedTodo));
     } else {
-      alert(submitError);
+      return;
+    }
+  };
+  let nameError = '';
+  let descriptionError = '';
+
+  const submissionContainsErrors = (name: string, description: string) => {
+    if (name === '') {
+      nameError += `Name cannot be blank.\n`;
+    }
+    if (description === '') {
+      descriptionError += `Description cannot be blank.\n`;
+    }
+    if (name.length > 256) {
+      nameError += `Name cannot be more than 256 characters.`;
+    }
+    if (description.length > 256) {
+      descriptionError += `Description cannot be more than 256 characters.`;
+    }
+    if (nameError === '' && descriptionError === '') {
+      return false;
+    } else {
+      props.toastHandler(nameError + ' ' + descriptionError);
+      return true;
     }
   };
 
@@ -139,16 +136,16 @@ const Todos = () => {
     }
   };
 
-  let content;
+  let todoListDisplay;
 
   if (getAllTodosStatus === 'loading') {
-    content = (
+    todoListDisplay = (
       <div className={classes.loader}>
         <div className="spinner-grow text-primary" role="status"></div>
       </div>
     );
   } else if (getAllTodosStatus === 'succeeded') {
-    content = todoList.map((todo: Todo) => {
+    todoListDisplay = todoList.map((todo: Todo) => {
       if (todo && todo.id) {
         return (
           <TodoItem
@@ -166,7 +163,7 @@ const Todos = () => {
       }
     });
   } else if (getAllTodosStatus === 'failed') {
-    content = <div>{todoError}</div>;
+    todoListDisplay = <div>{todoError}</div>;
   }
 
   return (
@@ -192,63 +189,15 @@ const Todos = () => {
       />
 
       <div>
-        <div className={classes.userBar}>
-          {user && user.name ? (
-            <span className={classes.userInfo}>Welcome {user.name}</span>
-          ) : null}
-          <Logout />
-        </div>
-        <div className={`d-flex justify-content-between ${classes.headerBar}`}>
-          <h2 className="text-light">Todo Manager</h2>
-          <button
-            className={`btn btn-primary`}
-            data-bs-toggle="modal"
-            data-bs-target="#addTodoModal"
-          >
-            ADD TODO +
-          </button>
-        </div>
-        <div className={`${classes.sortRow}`}>
-          <div className={`${classes.sortBy}`}>
-            <label
-              className={`form-check-label ${classes.selectLabel}`}
-              htmlFor="sort-by-select"
-            >
-              Sort By
-            </label>
-            <select
-              className={`form-select ${classes.sortSelect}`}
-              id="sort-by-select"
-              onChange={sortByHandler}
-            >
-              <option value="name" defaultValue={'name'}>
-                Name
-              </option>
-              <option value="description">Description</option>
-              <option value="completed">Completed</option>
-              <option value="id">ID</option>
-            </select>
-          </div>
-          <div className={`${classes.orderBy}`}>
-            <label
-              className={`form-check-label ${classes.selectLabel}`}
-              htmlFor="order-by-select"
-            >
-              Order By
-            </label>
-            <select
-              className={`form-select ${classes.sortSelect}`}
-              id="order-by-select"
-              onChange={orderByAscHandler}
-            >
-              <option value="asc" defaultValue={'asc'}>
-                ASC
-              </option>
-              <option value="desc">DESC</option>
-            </select>
-          </div>
-        </div>
-        <div className={`container`}>{content}</div>
+        <Header
+          handleSortChange={(e: Event) => {
+            sortByHandler(e);
+          }}
+          handleOrderbyChange={(e: Event) => {
+            orderByAscHandler(e);
+          }}
+        />
+        <div className={`container`}>{todoListDisplay}</div>
       </div>
     </>
   );
