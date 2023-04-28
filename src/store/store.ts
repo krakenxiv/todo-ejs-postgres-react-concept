@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
-import todosReducer from '../features/todos/todosSlice';
+import todosReducer from '../slices/todos/todosSlice';
 
 export const store = configureStore({
   reducer: {
