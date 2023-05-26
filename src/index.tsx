@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 import './index.scss';
+//  
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,8 +17,8 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <Auth0Provider
-        domain={`${process.env.REACT_APP_A0_DOMAIN}`}
-        clientId={`${process.env.REACT_APP_A0_CLIENTID}`}
+        domain="dev-w0ntncr56mlten2x.us.auth0.com"
+        clientId="OSqt19HTJOkxgpeoLoFtzLfuBi9N6Br5"
         authorizationParams={{
           redirect_uri: window.location.origin,
         }}
